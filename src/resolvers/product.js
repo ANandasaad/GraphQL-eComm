@@ -39,7 +39,7 @@ const productResolvers = {
         }
     },
     updateProduct: async(_,args,context)=>{
-        console.log(args);
+        // console.log(args);
        const productID= await Product.findById(args.id);
        if(!productID)
        {
@@ -65,6 +65,7 @@ const productResolvers = {
         }
         else{
              const deletedProduct= await Product.findByIdAndDelete(args.id);
+             console.log(deletedProduct);
               return deletedProduct;
         }
     }

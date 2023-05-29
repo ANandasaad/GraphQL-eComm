@@ -6,10 +6,12 @@ import { MONGODB_URL } from "./config.js";
 import userResolvers from "./resolvers/users.js";
 import typeDefs from "./typeDefs/typeDefs.js";
 import productResolvers from "./resolvers/product.js";
+import orderResolvers from "./resolvers/order.js";
 
 const resolvers={
     ...userResolvers,
-    ...productResolvers
+    ...productResolvers,
+    ...orderResolvers
  
    
 
