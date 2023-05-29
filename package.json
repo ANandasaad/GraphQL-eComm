@@ -1,0 +1,21 @@
+{
+  "name": "graphql-ecomm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.7.1",
+    "@graphql-tools/load-files": "^7.0.0",
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
+    "mongodb": "^5.5.0",
+    "mongoose": "^7.2.1"
+  }
+}
