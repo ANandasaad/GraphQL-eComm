@@ -1,15 +1,28 @@
 import { GraphQLError } from "graphql";
 import User from "../model/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { validationSignUp, validationLogin } from "../utils/validator.js";
+import { SECRET_KEY } from "../config.js";
+
+const GenerateToken=(user)=>{
+  return jwt.sign(
+    { id: user.id, email: user.id, username: user.username },
+    SECRET_KEY,
+    { expiresIn: "1h" }
+  );
+}
+
 
 const userResolvers = {
   Query: {
     getAllUser: async () => {
       try {
         const users = await User.find();
-        // console.log(users); // Log the retrieved users for debugging
+        // console.log(users);            // Log the retrieved users for debugging
         return users;
       } catch (error) {
-        console.error(error); // Log any error that occurs during retrieval
+        console.error(error);              // Log any error that occurs during retrieval
         throw new GraphQLError("Failed to retrieve users.", {
           extensions: {
             code: "USER_RETRIEVAL_ERROR",
@@ -33,8 +46,28 @@ const userResolvers = {
   },
   Mutation: {
     createUser: async (_, args, context) => {
-      console.log(args);
-      const emailUsed = await User.findOne(args.email);
+      const { name, email, username, password, confirmpassword } = args.input;
+
+      // console.log(args);
+      const { valid, error } = validationSignUp(
+        username,
+        password,
+        email,
+        confirmpassword
+      );
+      const errors = Object.values(error).join("/");
+      console.log(errors);
+      console.log(JSON.stringify(error));
+      if (!valid) {
+        throw new GraphQLError(`Error ${errors}`, {
+          extensions: {
+            code: `ERROR_ ${errors}`,
+          },
+        });
+      }
+
+      const emailUsed = await User.findOne({ email: email });
+      console.log(emailUsed);
       if (emailUsed) {
         throw new GraphQLError("Email is already exist", {
           extensions: {
@@ -42,18 +75,62 @@ const userResolvers = {
           },
         });
       } else {
+        let passwords = await bcrypt.hash(password, 12);
+
         const newUser = new User({
-          name: args.input.name,
-          username: args.input.username,
-          email: args.input.email,
+          name,
+          username,
+          email,
+          password: passwords,
+          createdAt: new Date().toISOString(),
         });
 
         const res = await newUser.save();
+        const token = GenerateToken(res);
         return {
           id: res.id,
           ...res._doc,
+          token,
         };
       }
+    },
+    loginUser: async (_,args,context)=>{
+      const { username, password } = args.input;
+      const {valid,error}= validationLogin(username,password);
+      const errors = Object.values(error).join("/");
+      if(!valid)
+      {
+        throw new GraphQLError(`${errors}`,{extensions:{
+          code:`ERROR / ${errors}`
+        }})
+      }
+      const user= await User.findOne({username:username});
+      if(!user)
+      {
+        throw new GraphQLError(`${errors}`,{extensions:{
+          code:"USER NOT FOUND"
+        }})
+      }
+      const match= await bcrypt.compare(password,user.password);
+      if(!match)
+      {
+        throw new GraphQLError(`${errors}`,{extensions:{
+          code:"PASSWORD_IS_NOT_CORRECT"
+        }})
+      }
+      
+
+      const token= GenerateToken(user);
+
+      return {
+        
+          id:user.id,
+          ...user._doc,
+          token,
+      
+      };
+    
+
     },
     updateUser: async (_, args, context) => {
       //   console.log(args.id);
