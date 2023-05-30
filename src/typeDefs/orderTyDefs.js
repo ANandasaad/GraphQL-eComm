@@ -3,10 +3,10 @@ const orderTypeDefs = gql`
   scalar Date
   type Order {
     id: ID!
-    customer: User!
-    products: [Product!]!
-    total: Float!
-    createdAt: Date!
+    orderNumber: String!
+    customer: [User]!
+    totalAmount: Float!
+    createdAt: Date
   }
 
   type Query {
@@ -17,18 +17,17 @@ const orderTypeDefs = gql`
   type Mutation {
     createOrder(input: createOrderInput): Order!
     updateOrder(id: ID!, input: updateOrderInput): Order!
-    deleteOrder(id: ID!): Order!
+    deleteOrder(id:ID!):Order!
   }
 
   input createOrderInput {
-    customerID: ID!
-    productIDs: [ID!]!
-    total:Float!
+    orderNumber: String!
+    customer: [ID]
+    totalAmount: Float!
   }
-
   input updateOrderInput {
-    customerID: ID!
-    total: Float!
+    orderNumber: String!
+    totalAmount: Float!
   }
 `;
 

@@ -4,9 +4,18 @@ import User from "../model/user.js";
 const userResolvers = {
   Query: {
     getAllUser: async () => {
-      const res = await User.find();
-      console.log(res);
-      return res;
+      try {
+        const users = await User.find();
+        // console.log(users); // Log the retrieved users for debugging
+        return users;
+      } catch (error) {
+        console.error(error); // Log any error that occurs during retrieval
+        throw new GraphQLError("Failed to retrieve users.", {
+          extensions: {
+            code: "USER_RETRIEVAL_ERROR",
+          },
+        });
+      }
     },
     getUser: async (_, args, context) => {
       const users = await User.findById(args.id);
