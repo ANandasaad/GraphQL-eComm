@@ -5,24 +5,34 @@ import jwt from "jsonwebtoken";
 import { validationSignUp, validationLogin } from "../utils/validator.js";
 import { SECRET_KEY } from "../config.js";
 
-const GenerateToken=(user)=>{
+const GenerateToken = (username,email,passwords) => {
   return jwt.sign(
-    { id: user.id, email: user.id, username: user.username },
+    { username: username, email:email, password:passwords },
     SECRET_KEY,
     { expiresIn: "1h" }
   );
-}
-
+};
 
 const userResolvers = {
   Query: {
-    getAllUser: async () => {
+    me: async(_,args,context)=>{
+      console.log("hit");
+      console.log(context);
+         if(!context.user){
+            throw new GraphQLError("Token is not Valid",{extensions:{
+              code:"TOKEN IS NOT VALID"
+            }});
+         }
+         return context.user;
+    },
+    getAllUser: async (_,args,context) => {
+      console.log(context);
       try {
         const users = await User.find();
         // console.log(users);            // Log the retrieved users for debugging
         return users;
       } catch (error) {
-        console.error(error);              // Log any error that occurs during retrieval
+        console.error(error); // Log any error that occurs during retrieval
         throw new GraphQLError("Failed to retrieve users.", {
           extensions: {
             code: "USER_RETRIEVAL_ERROR",
@@ -67,11 +77,12 @@ const userResolvers = {
       }
 
       const emailUsed = await User.findOne({ email: email });
+      const userName= await User.findOne({username:username});
       console.log(emailUsed);
-      if (emailUsed) {
-        throw new GraphQLError("Email is already exist", {
+      if (emailUsed || userName) {
+        throw new GraphQLError("Email is already exist / Username is already exist", {
           extensions: {
-            code: "EMAIL IS ALREADY USED",
+            code: "EMAIL IS ALREADY USED / USERNAME IS ALREADY EXIST",
           },
         });
       } else {
@@ -84,9 +95,11 @@ const userResolvers = {
           password: passwords,
           createdAt: new Date().toISOString(),
         });
-
+        const token = GenerateToken(username,email,passwords);
+        newUser.token=token;
         const res = await newUser.save();
-        const token = GenerateToken(res);
+        
+     
         return {
           id: res.id,
           ...res._doc,
@@ -94,43 +107,41 @@ const userResolvers = {
         };
       }
     },
-    loginUser: async (_,args,context)=>{
+    loginUser: async (_, args, context) => {
       const { username, password } = args.input;
-      const {valid,error}= validationLogin(username,password);
+      const { valid, error } = validationLogin(username, password);
       const errors = Object.values(error).join("/");
-      if(!valid)
-      {
-        throw new GraphQLError(`${errors}`,{extensions:{
-          code:`ERROR / ${errors}`
-        }})
+      if (!valid) {
+        throw new GraphQLError(`${errors}`, {
+          extensions: {
+            code: `ERROR / ${errors}`,
+          },
+        });
       }
-      const user= await User.findOne({username:username});
-      if(!user)
-      {
-        throw new GraphQLError(`${errors}`,{extensions:{
-          code:"USER NOT FOUND"
-        }})
+      const user = await User.findOne({ username: username });
+      if (!user) {
+        throw new GraphQLError(`${errors}`, {
+          extensions: {
+            code: "USER NOT FOUND",
+          },
+        });
       }
-      const match= await bcrypt.compare(password,user.password);
-      if(!match)
-      {
-        throw new GraphQLError(`${errors}`,{extensions:{
-          code:"PASSWORD_IS_NOT_CORRECT"
-        }})
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        throw new GraphQLError(`${errors}`, {
+          extensions: {
+            code: "PASSWORD_IS_NOT_CORRECT",
+          },
+        });
       }
-      
 
-      const token= GenerateToken(user);
+      const token = GenerateToken(user);
 
       return {
-        
-          id:user.id,
-          ...user._doc,
-          token,
-      
+        id: user.id,
+        ...user._doc,
+        token,
       };
-    
-
     },
     updateUser: async (_, args, context) => {
       //   console.log(args.id);
