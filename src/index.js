@@ -13,6 +13,8 @@ import { GraphQLError } from "graphql";
 import context from "./utils/context.js";
 import inventoryResolvers from "./resolvers/inventory.js";
 import reviewResolvers from "./resolvers/review.js";
+import categoryResolver from "./resolvers/category.js";
+import orderItemResolvers from "./resolvers/orderItem.js";
 const { merge } = pkg;
 
 const resolvers = merge(
@@ -20,7 +22,9 @@ const resolvers = merge(
   productResolvers,
   orderResolvers,
   inventoryResolvers,
-  reviewResolvers
+  reviewResolvers,
+  categoryResolver,
+  orderItemResolvers
 );
 
 const server = new ApolloServer({
