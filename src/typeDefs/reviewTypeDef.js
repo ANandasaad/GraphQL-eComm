@@ -12,7 +12,7 @@ const reviewTypeDefs = gql`
     }
     
     type Query{
-     getAllReview:Review!
+     getAllReview:[Review!]!
      getReview(id:ID!):Review!
     }
 
@@ -29,7 +29,7 @@ const reviewTypeDefs = gql`
      comment:String!
     }
     input updateReviewInput{
-    rating:String!
+    rating:Float!
     comment:String!
     }
 
