@@ -1,19 +1,21 @@
 import { GraphQLError } from "graphql";
 import Order from "../model/order.js";
 import User from "../model/user.js";
+import mongoose from "mongoose";
 const orderResolvers = {
-  // Order: {
-  //   customer: async (parent) => {
-  //     console.log(parent);
-  //     const order=await Order.findById(parent.id).populate('customer');
-  //     console.log(order);
-  //     return order;
-  //    },
-  // },
+  Order: {
+    customer: async (parent) => {
+      // console.log("hit");
+      // console.log(parent.customerID);
+      const order = await User.findById(parent.customerID);
+      // console.log(order);
+      return order;
+    },
+  },
   Query: {
     getAllOrder: async () => {
       try {
-        const res = await Order.find().populate("customer");
+        const res = await Order.find();
 
         // console.log(res);
         return res;
@@ -41,30 +43,45 @@ const orderResolvers = {
   },
   Mutation: {
     createOrder: async (_, args, context) => {
-      console.log(args);
+      // console.log(args);
       try {
-        const orderId = await Order.findById(args.id);
-        // console.log(orderId);
-        if (orderId) {
-          throw new GraphQLError("Order is already created", {
+        const { orderNumber, customerID, totalAmount } = args.input;
+        const user = await User.findById(customerID);
+        // console.log("hit");
+        // console.log(user);
+        if (!user) {
+          throw new GraphQLError("User not found", {
             extensions: {
-              code: "ORDER ALREADY CREATED",
+              code: "USER_NOT_FOUND",
             },
           });
         } else {
-          const newOrder = new Order({
-            orderNumber: args.input.orderNumber,
-            totalAmount: args.input.totalAmount,
-          });
-          const res = await newOrder.save();
-          //  console.log(res);
-          return {
-            id: res.id,
-            ...res._doc,
-          };
+          const existingOrder = await Order.findOne({orderNumber});
+          // console.log('orderId');
+          // console.log(existingOrder);
+          if (existingOrder) {
+            throw new GraphQLError("Order is already created", {
+              extensions: {
+                code: "ORDER ALREADY CREATED",
+              },
+            });
+          } else {
+            
+            const newOrder = new Order({
+              orderNumber,
+              customerID,
+              totalAmount,
+            });
+            const res = await newOrder.save();
+            //  console.log(res);
+            return {
+              id: res.id,
+              ...res._doc,
+            };
+          }
         }
       } catch (error) {
-        console.log(error);
+       
         throw new GraphQLError(`Error ${error}`, {
           extensions: {
             code: "ERROR",
@@ -89,19 +106,21 @@ const orderResolvers = {
         return updateOrder;
       }
     },
-    deleteOrder: async(_,args,context)=>{
+    deleteOrder: async (_, args, context) => {
       console.log(args);
-      const OrderID= await Order.findById(args.id);
-      if(!OrderID){
-        throw new GraphQLError("Order is Not Found",{extensions:{
-          code:'ORDER IS NOT FOUND'
-        }})
-      }else{
-        const deletedOrder= await Order.findByIdAndDelete(args.id);
+      const OrderID = await Order.findById(args.id);
+      if (!OrderID) {
+        throw new GraphQLError("Order is Not Found", {
+          extensions: {
+            code: "ORDER IS NOT FOUND",
+          },
+        });
+      } else {
+        const deletedOrder = await Order.findByIdAndDelete(args.id);
         console.log(deletedOrder);
         return deletedOrder;
       }
-    }
+    },
   },
 };
 

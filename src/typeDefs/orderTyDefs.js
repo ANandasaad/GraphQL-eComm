@@ -6,7 +6,8 @@ const orderTypeDefs = gql`
     orderNumber: String!
     customer: [User]!
     totalAmount: Float!
-    createdAt: Date
+    customerID:String!
+    createAt: Date
   }
 
   type Query {
@@ -20,9 +21,10 @@ const orderTypeDefs = gql`
     deleteOrder(id:ID!):Order!
   }
 
+
   input createOrderInput {
     orderNumber: String!
-    customer: [ID]
+    customerID:ID! 
     totalAmount: Float!
   }
   input updateOrderInput {

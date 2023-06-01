@@ -12,13 +12,15 @@ import User from "./model/user.js";
 import { GraphQLError } from "graphql";
 import context from "./utils/context.js";
 import inventoryResolvers from "./resolvers/inventory.js";
+import reviewResolvers from "./resolvers/review.js";
 const { merge } = pkg;
 
 const resolvers = merge(
   userResolvers,
   productResolvers,
   orderResolvers,
-  inventoryResolvers
+  inventoryResolvers,
+  reviewResolvers
 );
 
 const server = new ApolloServer({

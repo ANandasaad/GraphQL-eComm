@@ -4,11 +4,13 @@ import gql from "graphql-tag";
 import productTypeDefs from "./productTypeDefs.js";
 import orderTypeDefs from "./orderTyDefs.js";
 import inventoryTypeDefs from "./inventory.js";
+import reviewTypeDefs from "./reviewTypeDef.js";
 const typeDefs=gql`
   ${userTypeDefs},
   ${productTypeDefs},
   ${orderTypeDefs},
-  ${inventoryTypeDefs}
+  ${inventoryTypeDefs},
+  ${reviewTypeDefs}
   
 
 `

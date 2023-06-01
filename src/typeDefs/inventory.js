@@ -6,6 +6,7 @@ const inventoryTypeDefs=gql`
        id:ID!
        name:String!
        location:String!
+       product:[Product]!
     }
     type Query{
      getAllInventory:[Inventory!]!
@@ -17,9 +18,17 @@ const inventoryTypeDefs=gql`
       deleteInventory(id:ID!):Inventory!
     }
 
+    input productInput{
+        name:String!
+        description:String!
+        price:String!
+        category:String!
+    }
+
     input createInventoryInput{
        name:String!,
        location:String!
+       product:[productInput!]!
     }
     input updateInventoryInput{
         name:String!
