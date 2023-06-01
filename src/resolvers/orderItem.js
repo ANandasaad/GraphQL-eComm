@@ -2,7 +2,6 @@ import { GraphQLError } from "graphql";
 import OrderItem from "../model/orderItem.js";
 import Product from "../model/product.js";
 import Category from "../model/category.js";
-import Order from "../model/order.js";
 const orderItemResolvers = {
   Query: {
     getAllOrderItem: async () => {
