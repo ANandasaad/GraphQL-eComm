@@ -1,11 +1,10 @@
 import jwt from "jsonwebtoken";
-import { SECRET_KEY } from "../config.js";
 import { GraphQLError } from "graphql";
 
 const getUser = (token) => {
   try {
     if (token) {
-      const user = jwt.verify(token, SECRET_KEY);
+      const user = jwt.verify(token, process.env.SECRET__KEY);
       console.log(user);
       return user;
     }

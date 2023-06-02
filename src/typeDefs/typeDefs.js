@@ -8,6 +8,7 @@ import reviewTypeDefs from "./reviewTypeDef.js";
 import categoryTypeDefs from "./categoryTypeDefs.js";
 import orderItemTypeDefs from "./orderItemTypeDefs.js";
 import cartTypeDefs from "./cartTypeDefs.js";
+import paymentTypeDefs from "./paymentTypeDefs.js";
 const typeDefs=gql`
   ${userTypeDefs},
   ${productTypeDefs},
@@ -16,7 +17,8 @@ const typeDefs=gql`
   ${reviewTypeDefs},
   ${categoryTypeDefs},
   ${orderItemTypeDefs},
-  ${cartTypeDefs}
+  ${cartTypeDefs},
+  ${paymentTypeDefs}
   
 
 `

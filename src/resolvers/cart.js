@@ -9,7 +9,7 @@ const cartResolvers = {
         const cartItems = await Cart.find()
           .populate("userId")
           .populate("item.productId");
-        console.log(cartItems);
+        // console.log(cartItems);
         if (!cartItems) {
           throw new GraphQLError("Cart items is not found", {
             extensions: {

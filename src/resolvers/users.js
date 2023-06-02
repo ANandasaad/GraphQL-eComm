@@ -3,12 +3,12 @@ import User from "../model/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validationSignUp, validationLogin } from "../utils/validator.js";
-import { SECRET_KEY } from "../config.js";
+
 
 const GenerateToken = (username,email,passwords) => {
   return jwt.sign(
     { username: username, email:email, password:passwords },
-    SECRET_KEY,
+    process.env.SECRET__KEY,
     { expiresIn: "1h" }
   );
 };
@@ -26,7 +26,7 @@ const userResolvers = {
          return context.user;
     },
     getAllUser: async (_,args,context) => {
-      console.log(context);
+      // console.log(context);
       try {
         const users = await User.find();
         // console.log(users);            // Log the retrieved users for debugging
@@ -42,7 +42,7 @@ const userResolvers = {
     },
     getUser: async (_, args, context) => {
       const users = await User.findById(args.id);
-      console.log(users);
+      // console.log(users);
       if (users) {
         return users;
       } else {
@@ -66,7 +66,7 @@ const userResolvers = {
         confirmpassword
       );
       const errors = Object.values(error).join("/");
-      console.log(errors);
+      // console.log(errors);
       console.log(JSON.stringify(error));
       if (!valid) {
         throw new GraphQLError(`Error ${errors}`, {
@@ -78,7 +78,7 @@ const userResolvers = {
 
       const emailUsed = await User.findOne({ email: email });
       const userName= await User.findOne({username:username});
-      console.log(emailUsed);
+      // console.log(emailUsed);
       if (emailUsed || userName) {
         throw new GraphQLError("Email is already exist / Username is already exist", {
           extensions: {
