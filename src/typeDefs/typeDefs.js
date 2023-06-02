@@ -7,6 +7,7 @@ import inventoryTypeDefs from "./inventory.js";
 import reviewTypeDefs from "./reviewTypeDef.js";
 import categoryTypeDefs from "./categoryTypeDefs.js";
 import orderItemTypeDefs from "./orderItemTypeDefs.js";
+import cartTypeDefs from "./cartTypeDefs.js";
 const typeDefs=gql`
   ${userTypeDefs},
   ${productTypeDefs},
@@ -14,7 +15,8 @@ const typeDefs=gql`
   ${inventoryTypeDefs},
   ${reviewTypeDefs},
   ${categoryTypeDefs},
-  ${orderItemTypeDefs}
+  ${orderItemTypeDefs},
+  ${cartTypeDefs}
   
 
 `
