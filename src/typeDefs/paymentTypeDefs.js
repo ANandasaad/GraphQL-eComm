@@ -17,7 +17,7 @@ const paymentTypeDefs = gql`
   }
 
   type Query {
-    getAllPayment: [Payment]!
+    getAllPayment: [Payment!]!
     getPaymentID(id: ID!): Payment!
   }
 
@@ -31,7 +31,8 @@ const paymentTypeDefs = gql`
     orderId: ID!
     amount: Float!
     paymentMethod: String!
-    paymentStatus:PaymentStatus!
+    paymentStatus:String!
+ 
   }
 
   input updatePaymentInput {

@@ -4,18 +4,18 @@ import User from "../model/user.js";
 import mongoose from "mongoose";
 const orderResolvers = {
   Order: {
-    customer: async (parent) => {
-      // console.log("hit");
-      // console.log(parent.customerID);
-      const order = await User.findById(parent.customerID);
-      // console.log(order);
-      return order;
-    },
+    // customer: async (parent) => {
+    //   // console.log("hit");
+    //   // console.log(parent.customerID);
+    //   const order = await User.findById(parent.customerID);
+    //   // console.log(order);
+    //   return order;
+    // },
   },
   Query: {
     getAllOrder: async () => {
       try {
-        const res = await Order.find();
+        const res = await Order.find().populate('customer');
 
         // console.log(res);
         return res;
@@ -43,12 +43,12 @@ const orderResolvers = {
   },
   Mutation: {
     createOrder: async (_, args, context) => {
-      // console.log(args);
+      console.log(args);
       try {
-        const { orderNumber, customerID, totalAmount } = args.input;
-        const user = await User.findById(customerID);
-        // console.log("hit");
-        // console.log(user);
+        const { orderNumber, customer, totalAmount } = args.input;
+        const user = await User.findById(customer);
+        console.log("hit");
+        console.log(user);
         if (!user) {
           throw new GraphQLError("User not found", {
             extensions: {
@@ -57,8 +57,8 @@ const orderResolvers = {
           });
         } else {
           const existingOrder = await Order.findOne({orderNumber});
-          // console.log('orderId');
-          // console.log(existingOrder);
+          console.log('orderId');
+          console.log(existingOrder);
           if (existingOrder) {
             throw new GraphQLError("Order is already created", {
               extensions: {
@@ -69,14 +69,20 @@ const orderResolvers = {
             
             const newOrder = new Order({
               orderNumber,
-              customerID,
+              customer,
               totalAmount,
             });
             const res = await newOrder.save();
             //  console.log(res);
             return {
-              id: res.id,
+              id:res.id,
               ...res._doc,
+              customer:{
+                id:user._id,
+                name:user.name,
+                username:user.username,
+                email:user.email
+              }
             };
           }
         }

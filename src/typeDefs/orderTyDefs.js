@@ -4,9 +4,8 @@ const orderTypeDefs = gql`
   type Order {
     id: ID!
     orderNumber: String!
-    customer: [User]!
+    customer: User!
     totalAmount: Float!
-    customerID:String!
     createAt: Date
   }
 
@@ -24,7 +23,7 @@ const orderTypeDefs = gql`
 
   input createOrderInput {
     orderNumber: String!
-    customerID:ID! 
+    customer:ID! 
     totalAmount: Float!
   }
   input updateOrderInput {

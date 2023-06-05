@@ -2,9 +2,8 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
   orderNumber: { type: String, required: true },
-  customer: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   totalAmount: { type: Number, required: true },
-  customerID:{type:String,required:true},
   createAt: { type: Date, default: Date.now },
 });
 
