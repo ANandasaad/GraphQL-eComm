@@ -6,7 +6,7 @@ import typeDefs from "./typeDefs/typeDefs.js";
 import orderResolvers from "./resolvers/order.js";
 import productResolvers from "./resolvers/product.js";
 import pkg from "lodash";
-import context from "./utils/context.js";
+import { getUser } from "./utils/context.js";
 import inventoryResolvers from "./resolvers/inventory.js";
 import reviewResolvers from "./resolvers/review.js";
 import categoryResolver from "./resolvers/category.js";
@@ -14,6 +14,8 @@ import orderItemResolvers from "./resolvers/orderItem.js";
 import cartResolvers from "./resolvers/cart.js";
 import dotenv from 'dotenv';
 import paymentResolvers from "./resolvers/payment.js";
+import { GraphQLError } from "graphql";
+
 dotenv.config();
 
 
@@ -31,16 +33,42 @@ const resolvers = merge(
   paymentResolvers
 );
 
+console.log(process.env.SECRET__KEY);
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: context,
+
 });
 mongoose
   .connect(process.env.MONGODB__URL, { useNewUrlParser: true })
   .then(() => {
     console.log("MongoDB is connected successfully");
     return startStandaloneServer(server, {
+      context:async ({req,res})=>{
+        try {
+
+          const token = req.headers.authorization || " ";
+          // Check if the token exists
+   if (!token) {
+     throw new Error('Missing authentication token');
+   }
+       const user=  await  getUser(token);
+       if(!user)
+       {
+          throw new GraphQLError('User is not authenicated',{extensions:{
+           code: 'UNAUTHENTICATED',
+           http: { status: 401 },
+          }})
+       }
+       return {user}
+          
+        } catch (error) {
+          console.log(error)
+        }
+        
+        
+      },
       listen: {
         port: 4000,
       },

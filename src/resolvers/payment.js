@@ -37,6 +37,7 @@ const paymentResolvers = {
       
     getPaymentID: async (_, args, context) => {
       try {
+      
         const paymentId = await Payment.findById(args.id).populate("orderId");
         if (!paymentId) {
           throw new GraphQLError("Payment id is not found", {

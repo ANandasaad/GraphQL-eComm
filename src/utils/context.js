@@ -1,15 +1,24 @@
 import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql";
 
-const getUser = (token) => {
+
+
+
+export const getUser = (token) => {
   try {
     if (token) {
       const user = jwt.verify(token, process.env.SECRET__KEY);
-      console.log(user);
       return user;
     }
     return null;
   } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      throw new GraphQLError('Invalid token. Please provide a valid JWT.', {
+        extensions: {
+          code: 'TOKEN_INVALID',
+        },
+      });
+    }
     throw new GraphQLError(`Error ${error}`, {
       extensions: {
         code: `ERROR ${error}`,
@@ -18,22 +27,3 @@ const getUser = (token) => {
   }
 };
 
-const context = async ({ req }) => {
-  const authHeader = req.headers.authorization || "";
-   const token =authHeader;
-   console.log('hit');
-   console.log(token);
-  const user = await getUser(token);
-
-  if (!user) {
-    throw new GraphQLError(`User is not authorized`, {
-      extensions: {
-        code: "USER IS NOT AUTHORIZED",
-      },
-    });
-  }
-
-  return { user };
-};
-
-export default context;
