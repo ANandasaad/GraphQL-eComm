@@ -200,13 +200,13 @@ const userResolvers = {
     updateUser: async (_, args, { user }) => {
       //   console.log(args.id);
       //   console.log(args.input);
-      console.log('user-context');
+      console.log("user-context");
       console.log(user);
       try {
         if (user || user.role === "admin") {
           const userID = await User.findById(args.id);
 
-          if (!userID ) {
+          if (!userID) {
             throw new GraphQLError("User Not Found", {
               extensions: {
                 code: "USER NOT FOUND",
@@ -234,11 +234,9 @@ const userResolvers = {
         });
       }
     },
-    deleteUser: async (_, args, {user}) => {
-
+    deleteUser: async (_, args, { user }) => {
       try {
-        if(user.role==='admin')
-        {
+        if (user.role === "admin") {
           const userID = await User.findById(args.id);
 
           if (!userID) {
@@ -251,15 +249,14 @@ const userResolvers = {
             const deleteUser = await User.findByIdAndDelete(args.id);
             return deleteUser;
           }
+        } else {
+          throw new GraphQLError("Not Authenticated", {
+            extensions: {
+              code: "UNAUTHENTICATED",
+              http: { status: 401 },
+            },
+          });
         }
-        else
-      {
-        throw new GraphQLError('Not Authenticated',{extensions:{
-          code: "UNAUTHENTICATED",
-          http: { status: 401 },
-        }})
-      }
-        
       } catch (error) {
         throw new GraphQLError(`Error_${error}`, {
           extensions: {
