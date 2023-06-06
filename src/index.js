@@ -35,7 +35,6 @@ const resolvers = merge(
   adminResolvers
 );
 
-console.log(process.env.SECRET__KEY);
 
 const server = new ApolloServer({
   typeDefs,
@@ -57,8 +56,8 @@ mongoose
      throw new Error('Missing authentication token');
    }
        const user=  await  getUser(token);
-       console.log("user");
-       console.log(user);
+      //  console.log(user.role);
+       const admin=user.role;
        if(!user)
        {
           throw new GraphQLError('User is not authenicated',{extensions:{
@@ -66,7 +65,17 @@ mongoose
            http: { status: 401 },
           }})
        }
-       return {user}
+       else {
+         if(admin==='admin')
+         {
+            return {user};
+         }
+         else
+         {
+          return {user}
+         }
+       }
+       
           
         } catch (error) {
           console.log(error)

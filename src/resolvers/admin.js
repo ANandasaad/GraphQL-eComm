@@ -2,13 +2,13 @@ import { GraphQLError } from "graphql";
 import Admin from "../model/admin.js";
 import { validationLogin, validationSignUp } from "../utils/validator.js";
 import bcrypt from "bcryptjs";
-import TokenGenerator from "../config/tokenGenerator.js";
+import adminTokenGenerator from "../config/adminTokenGenerator.js";
 
 const adminResolvers = {
   Query: {
     getAdmin: async (_, args,context) => {
-        console.log('hit');
-        console.log(context);
+        // console.log('hit');
+        // console.log(context);
       try {
         const existingAdmin = await Admin.findById(args.id);
         if (!existingAdmin) {
@@ -31,7 +31,7 @@ const adminResolvers = {
   },
   Mutation: {
     createAdmin: async (_, args, context) => {
-      const { username, email, password, confirmPassword } = args.input;
+      const { username, email, password, confirmPassword,role } = args.input;
 
       try {
         const { valid, error } = validationSignUp(
@@ -57,10 +57,11 @@ const adminResolvers = {
           });
         } else {
           let passwords = await bcrypt.hash(password, 12);
-          const token = TokenGenerator(username, email, passwords);
+          const token = adminTokenGenerator(role,username, email, passwords);
           console.log("hit");
           console.log(token);
           const newAdmin = new Admin({
+            role,
             username,
             email,
             password:passwords,
@@ -143,9 +144,9 @@ const adminResolvers = {
       }
     },
     loginAdmin: async (_, args, context) => {
-        console.log('hit');
-        console.log(context);
-        console.log(args);
+        // console.log('hit');
+        // console.log(context);
+        // console.log(args);
       const { username, password } = args.input;
       try {
         const { valid, error } = validationLogin(username, password);
@@ -168,10 +169,10 @@ const adminResolvers = {
           });
         }
         const match = await bcrypt.compare(password, admin.password);
-        console.log(password);
-        console.log('admin pass');
-        console.log(admin.password);
-        console.log(match);
+        // console.log(password);
+        // console.log('admin pass');
+        // console.log(admin.password);
+        // console.log(match);
         if (!match) {
           throw new GraphQLError(`${errors}`, {
             extensions: {
@@ -179,7 +180,7 @@ const adminResolvers = {
             },
           });
         }
-        const token = TokenGenerator(admin);
+        const token = adminTokenGenerator(admin);
         return {
           id: admin.id,
           ...admin._doc,

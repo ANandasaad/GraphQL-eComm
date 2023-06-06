@@ -10,3 +10,4 @@ const TokenGenerator= (username,email,passwords)=>{
 }
 
 export default TokenGenerator;
+

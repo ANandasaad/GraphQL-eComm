@@ -7,6 +7,7 @@ const adminTypeDefs=gql`
       password:String!
       email:String!
       token:String!
+      role:String!
    }
 
    type Query{
@@ -32,6 +33,7 @@ const adminTypeDefs=gql`
      email:String!
      password:String!
      confirmPassword:String!
+     role:String!
    }
 
    input updateAdminInput{
