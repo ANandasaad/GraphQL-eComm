@@ -15,6 +15,7 @@ import cartResolvers from "./resolvers/cart.js";
 import dotenv from 'dotenv';
 import paymentResolvers from "./resolvers/payment.js";
 import { GraphQLError } from "graphql";
+import adminResolvers from "./resolvers/admin.js";
 
 dotenv.config();
 
@@ -30,7 +31,8 @@ const resolvers = merge(
   categoryResolver,
   orderItemResolvers,
   cartResolvers,
-  paymentResolvers
+  paymentResolvers,
+  adminResolvers
 );
 
 console.log(process.env.SECRET__KEY);
@@ -49,11 +51,14 @@ mongoose
         try {
 
           const token = req.headers.authorization || " ";
+          
           // Check if the token exists
    if (!token) {
      throw new Error('Missing authentication token');
    }
        const user=  await  getUser(token);
+       console.log("user");
+       console.log(user);
        if(!user)
        {
           throw new GraphQLError('User is not authenicated',{extensions:{

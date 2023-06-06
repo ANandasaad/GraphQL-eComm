@@ -1,7 +1,6 @@
 import { GraphQLError } from "graphql";
 import User from "../model/user.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { validationSignUp, validationLogin } from "../utils/validator.js";
 import TokenGenerator from "../config/tokenGenerator.js";
 
