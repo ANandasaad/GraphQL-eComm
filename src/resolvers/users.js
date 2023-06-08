@@ -25,15 +25,30 @@ const userResolvers = {
       }
       return user;
     },
-    getAllUser: async (_, args, { user }) => {
+    getAllUser: async (_, args, context) => {
       console.log("hit");
-      console.log(user.role);
-      if (user.role) {
+      const{user}=context;
+      console.log(user);
         try {
-          const users = await User.find();
-          console.log("end");
-          console.log(users); // Log the retrieved users for debugging
-          return users;
+          if(user.role===undefined)
+          {
+            throw new GraphQLError("Admin is not authenticated", {
+              extensions: {
+                code: "UNAUTHENTICATED",
+                http: { status: 401 },
+              },
+            });
+          }
+
+          if(user.role)
+          {
+            const users = await User.find();
+            console.log("end");
+            console.log(users); // Log the retrieved users for debugging
+            return users;
+          }
+         
+         
         } catch (error) {
           console.error(error); // Log any error that occurs during retrieval
           throw new GraphQLError("Failed to retrieve users.", {
@@ -42,14 +57,7 @@ const userResolvers = {
             },
           });
         }
-      } else {
-        throw new GraphQLError("Admin is not authenticated", {
-          extensions: {
-            code: "UNAUTHENTICATED",
-            http: { status: 401 },
-          },
-        });
-      }
+      
     },
     getUser: async (_, args, { user }) => {
       // const  role= user;
