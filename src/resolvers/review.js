@@ -30,20 +30,41 @@ const reviewResolvers = {
 
   // },
   Query: {
-    getAllReview: async () => {
+    getAllReview: async (_, args, context) => {
+      const { user } = context;
+      const {rating}= args.input;
+      console.log(args);
       try {
-        const review = await Review.find()
-          .populate("userId")
-          .populate("productId");
-        if (!review) {
-          throw new GraphQLError("Review is not found for this product", {
+        if (user) {
+          if (user.role) {
+            const review = await Review.find({ rating: { $gt:rating  } })
+              .sort({ rating: 1 })
+              .populate("userId")
+              .populate("productId");
+            // console.log(review);
+            if (!review) {
+              throw new GraphQLError("Review is not found for this product", {
+                extensions: {
+                  code: "REVIEW_NOT_FOUND_FOR_THE_PRODUCT",
+                },
+              });
+            } else {
+              // console.log(review);
+              return review;
+            }
+          } else {
+            throw new GraphQLError("Admin is not authenticated", {
+              extensions: {
+                code: "ADMIN_NOT_AUTHENTICATED",
+              },
+            });
+          }
+        } else {
+          throw new GraphQLError("User is not Authenticated", {
             extensions: {
-              code: "REVIEW_NOT_FOUND_FOR_THE_PRODUCT",
+              code: "USER_NOT_AUTHENTICATED",
             },
           });
-        } else {
-          console.log(review);
-          return review;
         }
       } catch (error) {
         throw new GraphQLError(`Error / ${error}`, {
@@ -107,9 +128,16 @@ const reviewResolvers = {
           comment,
         });
         const res = await newReview.save();
+        console.log(res);
         return {
           id: res.id,
           ...res._doc,
+          userId: {
+            id: user._id,
+          },
+          productId: {
+            id: product._id,
+          },
         };
       } catch (error) {
         throw new GraphQLError(`Error ${error}`, {
@@ -148,29 +176,29 @@ const reviewResolvers = {
         });
       }
     },
-    deleteReview: async(_,args,context)=>{
-           try {
-             const reviewId= await Review.findById(args.id);
-             if(!reviewId)
-             {
-                throw new GraphQLError("Review Detail is not Found", {
-                    extensions: {
-                      code: "REVIEW_DETAILS_NOT_FOUND",
-                    },
-                  });
-             }
-             else{
-                const deletedReview= await Review.findByIdAndDelete(args.id).populate('productId').populate('userId');
-                return deletedReview;
-             }
-           } catch (error) {
-            throw new GraphQLError(`Error ${error}`, {
-                extensions: {
-                  code: `ERROR \ ${error}`,
-                },
-              });
-           }
-    }
+    deleteReview: async (_, args, context) => {
+      try {
+        const reviewId = await Review.findById(args.id);
+        if (!reviewId) {
+          throw new GraphQLError("Review Detail is not Found", {
+            extensions: {
+              code: "REVIEW_DETAILS_NOT_FOUND",
+            },
+          });
+        } else {
+          const deletedReview = await Review.findByIdAndDelete(args.id)
+            .populate("productId")
+            .populate("userId");
+          return deletedReview;
+        }
+      } catch (error) {
+        throw new GraphQLError(`Error ${error}`, {
+          extensions: {
+            code: `ERROR \ ${error}`,
+          },
+        });
+      }
+    },
   },
 };
 
